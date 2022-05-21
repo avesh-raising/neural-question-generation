@@ -9,8 +9,10 @@ from collections import defaultdict
 from argparse import ArgumentParser
 
 import sys
-reload(sys)
-sys.setdefaultencoding('utf-8')
+
+# reload(sys)
+# sys.setdefasultencoding('utf-8')
+
 
 class QGEvalCap:
     def __init__(self, gts, res):
@@ -34,14 +36,15 @@ class QGEvalCap:
             score, scores = scorer.compute_score(self.gts, self.res)
             if type(method) == list:
                 for sc, scs, m in zip(score, scores, method):
-                    print "%s: %0.5f"%(m, sc)
+                    print("%s: %0.5f" % (m, sc))
                     output.append(sc)
             else:
-                print "%s: %0.5f"%(method, score)
+                print("%s: %0.5f" % (method, score))
                 output.append(score)
         return output
 
-def eval(out_file, src_file, tgt_file, isDIn = False, num_pairs = 500):
+
+def evaluate(out_file, src_file, tgt_file, isDIn=False, num_pairs=500):
     """
         Given a filename, calculate the metric scores for that prediction file
 
@@ -51,8 +54,7 @@ def eval(out_file, src_file, tgt_file, isDIn = False, num_pairs = 500):
     pairs = []
     with open(src_file, 'r') as infile:
         for line in infile:
-            pair = {}
-            pair['tokenized_sentence'] = line[:-1]
+            pair = {'tokenized_sentence': line[:-1]}
             pairs.append(pair)
 
     with open(tgt_file, "r") as infile:
@@ -67,13 +69,11 @@ def eval(out_file, src_file, tgt_file, isDIn = False, num_pairs = 500):
             line = line[:-1]
             output.append(line)
 
-
     for idx, pair in enumerate(pairs):
         pair['prediction'] = output[idx]
 
-
-    ## eval
-    from eval import QGEvalCap
+    # eval
+    # from eval import QGEvalCap
     import json
     from json import encoder
     encoder.FLOAT_REPR = lambda o: format(o, '.4f')
@@ -84,20 +84,21 @@ def eval(out_file, src_file, tgt_file, isDIn = False, num_pairs = 500):
         key = pair['tokenized_sentence']
         res[key] = [pair['prediction'].encode('utf-8')]
 
-        ## gts 
+        # gts
         gts[key].append(pair['tokenized_question'].encode('utf-8'))
 
     QGEval = QGEvalCap(gts, res)
     return QGEval.evaluate()
 
+
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("-out", "--out_file", dest="out_file", default="../result/seq2seq/generated.txt", help="output file to compare")
+    parser.add_argument("-out", "--out_file", dest="out_file", default="../result/seq2seq/generated.txt",
+                        help="output file to compare")
     parser.add_argument("-src", "--src_file", dest="src_file", default="../result/seq2seq/golden.txt", help="src file")
-    parser.add_argument("-tgt", "--tgt_file", dest="tgt_file", default="../result/seq2seq/golden.txt", help="target file")
+    parser.add_argument("-tgt", "--tgt_file", dest="tgt_file", default="../result/seq2seq/golden.txt",
+                        help="target file")
     args = parser.parse_args()
 
     print("scores: \n")
-    eval(args.out_file, args.src_file, args.tgt_file)
-
-
+    evaluate(args.out_file, args.src_file, args.tgt_file)

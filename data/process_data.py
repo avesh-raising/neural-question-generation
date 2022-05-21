@@ -13,7 +13,7 @@ def make_sent_dataset():
     train_src_file = "./para-train.txt"
     train_trg_file = "./tgt-train.txt"
 
-    embedding_file = "./glove.840B.300d.txt"
+    embedding_file = "./glove.6B.300d.txt"
     embedding = "./embedding.pkl"
     word2idx_file = "./word2idx.pkl"
     # make vocab file
@@ -22,7 +22,7 @@ def make_sent_dataset():
 
 
 def make_para_dataset():
-    embedding_file = "./glove.840B.300d.txt"
+    embedding_file = "./glove.6B.300d.txt"
     embedding = "./embedding.pkl"
     src_word2idx_file = "./word2idx.pkl"
 
@@ -42,7 +42,7 @@ def make_para_dataset():
     make_conll_format(train_examples, train_src_file, train_trg_file)
     word2idx = make_vocab_from_squad(src_word2idx_file, counter, config.vocab_size)
     make_embedding(embedding_file, embedding, word2idx)
-
+    #
     # split dev into dev and test
     dev_test_examples, _ = process_file(dev_squad)
     # random.shuffle(dev_test_examples)

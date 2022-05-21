@@ -307,10 +307,11 @@ def make_vocab_from_squad(output_file, counter, max_vocab_size):
     word2idx[START_TOKEN] = 2
     word2idx[END_TOKEN] = 3
 
-    for idx, (token, freq) in enumerate(sorted_vocab, start=4):
+    for idx, (token, freq) in enumerate(sorted_vocab):
         if len(word2idx) == max_vocab_size:
             break
-        word2idx[token] = idx
+        if token not in [PAD_TOKEN, UNK_TOKEN, START_TOKEN, END_TOKEN]:
+            word2idx[token] = idx
     with open(output_file, "wb") as f:
         pickle.dump(word2idx, f)
 
@@ -327,6 +328,7 @@ def make_embedding(embedding_file, output_file, word2idx):
         word2embedding[word] = vec
     embedding = np.zeros((len(word2idx), 300), dtype=np.float32)
     num_oov = 0
+    word2embedding[UNK_TOKEN] = np.zeros((1, 300), dtype=np.float32)
     for word, idx in word2idx.items():
         if word in word2embedding:
             embedding[idx] = word2embedding[word]
@@ -512,6 +514,16 @@ def process_file(file_name):
                     answer_end = answer_start + len(answer_text)
                     answer_texts.append(answer_text)
                     answer_span = []
+                    '''
+                    this increases the counter of each context token
+                    by the number of question-answer pairs provided
+                    for that context.
+                    maybe:
+                        this is done so that tokens of contexts with 
+                        more qa pairs are given more importance, and
+                        their tokens remain in vocabulary as they
+                        contain more training examples                     
+                    '''
 
                     for token in context_tokens:
                         counter[token] += len(para["qas"])
